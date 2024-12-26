@@ -1,58 +1,62 @@
+import { useEffect, useState } from 'react';
 import './Square.css';
+
 import hoverEffect from '../assets/Sound/hover.wav';
 import DiamondEffect from '../assets/Sound/gold.wav';
 import goldIcon from '../assets/gold.png';
 import bombIcon from '../assets/bomb.png';
-import { useEffect, useState } from 'react';
 
-function Square({ mine, setGameOver, gameOver, setScore }) {
+function Square({ mine, setGameOver, gameOver, setScore, gameReset }) {
+    const [clicked, setClicked] = useState(false);
+    const [image, setImage] = useState(null);
 
-    let [image, setImage] = useState(null);
+    // Скрыть все иконки при сбросе игры
+    useEffect(() => {
+        if (gameReset) {
+            setClicked(false);
+            setImage(null);
+        }
+    }, [gameReset]);
 
+    // Показать все иконки при завершении игры
     useEffect(() => {
         if (gameOver) {
             if (mine) {
                 setImage(bombIcon);
-            }
-            else {
+            } else {
                 setImage(goldIcon);
             }
         }
-    }, [gameOver, mine])
+    }, [gameOver, mine]);
 
-    function mouseEnterHandle() {
-        if (!image) {
+    const mouseEnterHandle = () => {
+        if (!image && !clicked) {
             const sound = new Audio(hoverEffect);
             sound.play();
         }
-    }
+    };
 
-    function clickHandler() {
+    const clickHandler = () => {
+        if (gameOver || clicked) return;
 
-        if(gameOver) return;
-
+        setClicked(true);
         if (!mine) {
-            setScore((prevValue) => {
-                return prevValue * 2;
-            });
+            setScore((prevValue) => prevValue * 2);
             setImage(goldIcon);
             const sound = new Audio(DiamondEffect);
             sound.play();
         } else {
-            alert("You Loose The Game");
+            alert('You Lose The Game');
             setGameOver(true);
+            setImage(bombIcon);
         }
-    }
+    };
 
-    return <>
-        <div
-            className='square-item'
-            onMouseEnter={mouseEnterHandle}
-            onClick={clickHandler}
-        >
-            {image && <img height={90} width={90} src={image} />}
+    return (
+        <div className="square-item" onMouseEnter={mouseEnterHandle} onClick={clickHandler}>
+            {image && <img height={90} width={90} src={image} alt="square-icon" />}
         </div>
-    </>
+    );
 }
 
 export default Square;
