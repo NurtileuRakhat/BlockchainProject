@@ -1,6 +1,6 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 function Login() {
@@ -9,32 +9,14 @@ function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  const handleLogin = async (e) => {  
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/users?username=${username}&password=${password}`);
-      const data = await response.json();
-
-      if (data.length > 0) {
-        const user = data[0];
-        localStorage.setItem('token', user.token); 
-        setError(''); 
-        setUsername('');
-        setPassword(''); 
-        navigate('/'); 
-      } else {
-        setError('Invalid username or password');
-      }
+      const response = await axios.post('http://localhost:5000/login', { username, password });
+      localStorage.setItem('token', response.data.token);
+      navigate('/games');
     } catch (error) {
-      console.error('Error logging in:', error);
-      setError('Something went wrong');
+      setError('Invalid username or password');
     }
   };
 

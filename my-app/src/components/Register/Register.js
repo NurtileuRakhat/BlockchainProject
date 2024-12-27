@@ -1,6 +1,6 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 function Register() {
@@ -11,35 +11,16 @@ function Register() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/');
-    }
-  }, [navigate]);
-
-
   const handleRegister = async (e) => {
-    e.preventDefault(); 
-
+    e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password, token: `token-${username}`}),
-      });
-
-      if (response.ok) {
-        setMessage('User registered successfully');
-        navigate('/login');
-      } else {
-        setMessage('Failed to register user');
-      }
+      await axios.post('http://localhost:5000/register', { username, email, password });
+      setMessage('User registered successfully');
+      navigate('/login');
+      setError('');
     } catch (error) {
-      setMessage('Error: ' + error.message);
+      setMessage('');
+      setError('Error registering user. Please try again.');
     }
   };
 
